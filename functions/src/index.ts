@@ -66,8 +66,8 @@ exports.dialogflowFirebaseFulfillment = functions
   .region('asia-northeast1')
   .https.onRequest((request, response) => {
     const agent = new WebhookClient({ request, response });
-    console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
-    console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
+    console.log(`Dialogflow Request headers: ${JSON.stringify(request.headers)}`);
+    console.log(`Dialogflow Request body: ${JSON.stringify(request.body)}`);
 
     const intentMap = new Map();
     intentMap.set('Default Welcome Intent', welcome);
@@ -77,5 +77,9 @@ exports.dialogflowFirebaseFulfillment = functions
     } else {
       intentMap.set(null, other);
     }
-    agent.handleRequest(intentMap);
+    agent
+      .handleRequest(intentMap)
+      .catch(err => {
+        console.error(`Dialogflow Handled error: ${err}`);
+      });
   });

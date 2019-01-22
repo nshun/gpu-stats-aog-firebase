@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { Carousel } from 'actions-on-google';
+import { Carousel, DialogflowConversation, GoogleActionsV2OptionValueSpec } from 'actions-on-google';
 import { WebhookClient, Card, Suggestion } from 'dialogflow-fulfillment';
 
 // Set debug status
@@ -10,13 +10,22 @@ const homepage = 'http://www.inoue.eb.waseda.ac.jp/';
 const imageUrl = 'http://www.inoue.eb.waseda.ac.jp/css/images/1.jpg';
 const imageUrl2 = 'http://www.inoue.eb.waseda.ac.jp/css/images/2.jpg';
 
+interface StrStrDictionary {
+  [key: string]: string;
+}
+const SELECTED_ITEM_RESPONSES: StrStrDictionary = {
+  neptune: 'You selected neptune',
+  saturn: 'You selected saturn',
+  ariel: 'You selected ariel',
+};
+
 function googleAssistantOther(agent: WebhookClient): void {
   const conv = agent.conv();
   conv.ask('Please choose an item:');
   conv.ask(new Carousel({
     // title: 'Google Assistant',
     items: {
-      'WorksWithGoogleAssistantItemKey': {
+      'neptune': {
         title: 'Works With the Google Assistant',
         description: 'If you see this logo, you know it will work with the Google Assistant.',
         image: {
@@ -24,7 +33,7 @@ function googleAssistantOther(agent: WebhookClient): void {
           accessibilityText: 'Works With the Google Assistant logo',
         },
       },
-      'GoogleHomeItemKey': {
+      'saturn': {
         title: 'Google Home',
         description: 'Google Home is a powerful speaker and voice Assistant.',
         image: {
@@ -36,6 +45,14 @@ function googleAssistantOther(agent: WebhookClient): void {
   }));
   // Add Actions on Google library responses to your agent's response
   agent.add(conv);
+}
+
+function handleSelectedItem(conv: DialogflowConversation, input: GoogleActionsV2OptionValueSpec, option: string): void {
+  let response = 'You did not select any item';
+  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
+    response = SELECTED_ITEM_RESPONSES[option];
+  }
+  conv.ask(response);
 }
 
 function welcome(agent: WebhookClient): void {
@@ -74,6 +91,7 @@ exports.dialogflowFirebaseFulfillment = functions
     intentMap.set('Default Fallback Intent', fallback);
     if (agent.requestSource === 'ACTIONS_ON_GOOGLE') {
       intentMap.set(null, googleAssistantOther);
+      intentMap.set('actions.intent.OPTION', handleSelectedItem)
     } else {
       intentMap.set(null, other);
     }

@@ -1,103 +1,53 @@
 import * as functions from 'firebase-functions';
-import { Carousel, DialogflowConversation, GoogleActionsV2OptionValueSpec } from 'actions-on-google';
-import { WebhookClient, Card, Suggestion } from 'dialogflow-fulfillment';
+import { dialogflow, Carousel } from 'actions-on-google';
+// import * as admin from 'firebase-admin';
 
-// Set debug status
-process.env.DEBUG = 'actions-on-google:*';
+const app = dialogflow({ debug: true });
 
-// URLs for images used in card rich responses
-const homepage = 'http://www.inoue.eb.waseda.ac.jp/';
-const imageUrl = 'http://www.inoue.eb.waseda.ac.jp/css/images/1.jpg';
-const imageUrl2 = 'http://www.inoue.eb.waseda.ac.jp/css/images/2.jpg';
+// set database
+// admin.initializeApp(functions.config().firebase);
+// const db = admin.database();
 
 interface StrStrDictionary {
   [key: string]: string;
 }
+
+app.intent('Default Welcome Intent', conv => {
+  if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
+    conv.ask('Sorry, try this on a screen device or select the ' +
+      'phone surface in the simulator.');
+    return;
+  }
+  conv.ask('Which of these looks good?')
+  conv.ask(new Carousel({
+    items: {
+      "neptune": {
+        title: 'neptune',
+        description: 'Description of number one',
+        synonyms: ['synonym of KEY_ONE 1', 'synonym of KEY_ONE 2'],
+      },
+      "uranus": {
+        title: 'uranus',
+        description: 'Description of number one',
+        synonyms: ['synonym of KEY_TWO 1', 'synonym of KEY_TWO 2'],
+      }
+    }
+  }));
+});
+
 const SELECTED_ITEM_RESPONSES: StrStrDictionary = {
-  neptune: 'You selected neptune',
-  saturn: 'You selected saturn',
-  ariel: 'You selected ariel',
+  'neptune': 'You selected the neptune',
+  'uranus': 'You selected the uranus',
 };
 
-function googleAssistantOther(agent: WebhookClient): void {
-  const conv = agent.conv();
-  conv.ask('Please choose an item:');
-  conv.ask(new Carousel({
-    // title: 'Google Assistant',
-    items: {
-      'neptune': {
-        title: 'Works With the Google Assistant',
-        description: 'If you see this logo, you know it will work with the Google Assistant.',
-        image: {
-          url: imageUrl,
-          accessibilityText: 'Works With the Google Assistant logo',
-        },
-      },
-      'saturn': {
-        title: 'Google Home',
-        description: 'Google Home is a powerful speaker and voice Assistant.',
-        image: {
-          url: imageUrl2,
-          accessibilityText: 'Google Home'
-        },
-      },
-    },
-  }));
-  // Add Actions on Google library responses to your agent's response
-  agent.add(conv);
-}
-
-function handleSelectedItem(conv: DialogflowConversation, input: GoogleActionsV2OptionValueSpec, option: string): void {
+app.intent('actions.intent.OPTION', (conv, params, option) => {
   let response = 'You did not select any item';
-  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
-    response = SELECTED_ITEM_RESPONSES[option];
+  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option.toString())) {
+    response = SELECTED_ITEM_RESPONSES[option.toString()];
   }
   conv.ask(response);
-}
-
-function welcome(agent: WebhookClient): void {
-  agent.add(`Welcome to my agent!`);
-}
-
-function fallback(agent: WebhookClient): void {
-  agent.add(`I didn't understand`);
-  agent.add(`I'm sorry, can you try again?`);
-}
-
-function other(agent: WebhookClient): void {
-  agent.add(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
-  agent.add(new Card({
-    title: `Title: this is a card title`,
-    imageUrl: imageUrl,
-    text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
-    buttonText: 'This is a button',
-    buttonUrl: homepage
-  })
-  );
-  agent.add(new Suggestion(`Quick Reply`));
-  agent.add(new Suggestion(`Suggestion`));
-  agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' } });
-}
+});
 
 exports.dialogflowFirebaseFulfillment = functions
   .region('asia-northeast1')
-  .https.onRequest((request, response) => {
-    const agent = new WebhookClient({ request, response });
-    console.log(`Dialogflow Request headers: ${JSON.stringify(request.headers)}`);
-    console.log(`Dialogflow Request body: ${JSON.stringify(request.body)}`);
-
-    const intentMap = new Map();
-    intentMap.set('Default Welcome Intent', welcome);
-    intentMap.set('Default Fallback Intent', fallback);
-    if (agent.requestSource === 'ACTIONS_ON_GOOGLE') {
-      intentMap.set(null, googleAssistantOther);
-      intentMap.set('actions.intent.OPTION', handleSelectedItem)
-    } else {
-      intentMap.set(null, other);
-    }
-    agent
-      .handleRequest(intentMap)
-      .catch(err => {
-        console.error(`Dialogflow Handled error: ${err}`);
-      });
-  });
+  .https.onRequest(app);

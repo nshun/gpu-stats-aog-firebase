@@ -41,7 +41,7 @@ app.intent('actions.intent.OPTION', (conv, params, option) => {
       const snapshot = await docRef.get();
       const util = await snapshot.get('gpuUtil');
       const time = await snapshot.get('updatedAt');
-      const response = `${time} の GPU 使用率は ${util} % です`;
+      const response = `${name} の ${time} 時点の GPU 使用率は ${util} % です`;
       resolve(conv.close(response));
     } catch {
       const response = '調べられませんでした';

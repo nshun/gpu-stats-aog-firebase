@@ -10,10 +10,6 @@ const app = dialogflow({ debug: true });
 admin.initializeApp(functions.config().firebase);
 const db = admin.firestore();
 
-interface StrStrDictionary {
-  [key: string]: string;
-}
-
 app.intent('Default Welcome Intent', conv => {
   if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
     conv.ask('Sorry, try this on a screen device or select the ' +
@@ -37,17 +33,22 @@ app.intent('Default Welcome Intent', conv => {
   }));
 });
 
-const SELECTED_ITEM_RESPONSES: StrStrDictionary = {
-  'neptune': 'You selected the neptune',
-  'uranus': 'You selected the uranus',
-};
-
 app.intent('actions.intent.OPTION', (conv, params, option) => {
-  let response = 'You did not select any item';
-  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option.toString())) {
-    response = SELECTED_ITEM_RESPONSES[option.toString()];
-  }
-  conv.ask(response);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const name = (option || '').toString();
+      const docRef = db.collection('status').doc(name);
+      const snapshot = await docRef.get();
+      const util = await snapshot.get('gpuUtil');
+      const time = await snapshot.get('updatedAt');
+      const response = `${time} の GPU 使用率は ${util} % です`;
+      resolve(conv.close(response));
+    } catch {
+      const response = '調べられませんでした';
+      resolve(conv.close(response));
+    }
+  })
+
 });
 
 function storeFirebase(req: functions.Request, res: functions.Response) {

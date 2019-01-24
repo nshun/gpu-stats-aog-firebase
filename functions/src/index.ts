@@ -41,10 +41,10 @@ app.intent('actions.intent.OPTION', (conv, params, option) => {
       const snapshot = await docRef.get();
       const util = await snapshot.get('gpuUtil');
       const time = await snapshot.get('updatedAt');
-      const response = `${time} に取得した使用状況です`;
+      conv.ask(`${time} に取得した使用状況です`);
       resolve(conv.ask(new Table({
         title: `${name}`,
-        subtitle: response,
+        subtitle: `${time}`,
         image: new Image({
           url: 'https://avatars0.githubusercontent.com/u/23533486',
           alt: 'Actions on Google'

@@ -28,66 +28,72 @@ app.intent('Default Welcome Intent', conv => {
         title: 'uranus',
         description: 'Description of number one',
         synonyms: ['synonym of KEY_TWO 1', 'synonym of KEY_TWO 2'],
-      }
+      },
+      "mercury": {
+        title: 'mercury',
+        description: 'Description of number one',
+        synonyms: ['synonym of KEY_TWO 1', 'synonym of KEY_TWO 2'],
+      },
     }
   }));
 });
 
 app.intent('actions.intent.OPTION', (conv, params, option) => {
   return new Promise(async (resolve, reject) => {
-    try {
-      const name = (option || '').toString();
-      const docRef = db.collection('status').doc(name);
-      const snapshot = await docRef.get();
-      const util = await snapshot.get('gpuUtil');
-      const time = await snapshot.get('updatedAt');
-      conv.ask(`${time} に取得した使用状況です`);
+    const name = (option || '').toString();
+    const docRef = db.collection('status').doc(name);
+    const snapshot = await docRef.get();
+    if (snapshot.exists) {
+      const data = new Status(snapshot.data());
+      conv.ask(`${data.updatedAt} に取得した使用状況です`);
       resolve(conv.ask(new Table({
         title: `${name}`,
-        subtitle: `${time}`,
+        subtitle: `${data.gpuName} (${data.gpuTemp}℃) \n ${data.updatedAt}`,
         image: new Image({
           url: 'https://avatars0.githubusercontent.com/u/23533486',
           alt: 'Actions on Google'
         }),
         columns: [
           {
-            header: 'header 1',
             align: 'CENTER',
           },
           {
-            header: 'header 2',
-            align: 'LEADING',
+            header: 'current',
+            align: 'TRAILING',
           },
           {
-            header: 'header 3',
+            header: 'max',
             align: 'TRAILING',
           },
         ],
         rows: [
           {
-            cells: ['GPU使用率', `${util} %`, 'row 1 item 3'],
+            cells: ['CPU', `${data.cpuUtil} %`, ''],
             dividerAfter: false,
           },
           {
-            cells: ['row 2 item 1', 'row 2 item 2', 'row 2 item 3'],
+            cells: ['メインメモリ', `${data.memUtil} %`, `${data.memTotal} MB`],
             dividerAfter: true,
           },
           {
-            cells: ['row 2 item 1', 'row 2 item 2', 'row 2 item 3'],
+            cells: ['GPU', `${data.gpuUtil} %`, ''],
+            dividerAfter: false,
+          },
+          {
+            cells: ['GPUメモリ', `${Math.round(data.gpuMemUsed / data.gpuMemTotal * 1000) / 10} %`, `${data.gpuMemTotal} MB`],
+            dividerAfter: true,
           },
         ],
         buttons: new Button({
-          title: 'Button Title',
-          url: 'https://github.com/actions-on-google'
+          title: 'Kibana',
+          url: 'http://kibana/'
         }),
       })));
-      // resolve(conv.close(response));
-    } catch {
+    } else {
       const response = '調べられませんでした';
       resolve(conv.close(response));
     }
-  })
-
+  });
 });
 
 function storeFirebase(req: functions.Request, res: functions.Response) {

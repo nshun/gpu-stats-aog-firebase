@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { dialogflow, Carousel } from 'actions-on-google';
+import { dialogflow, Carousel, Table, Image, Button } from 'actions-on-google';
 import * as admin from 'firebase-admin';
 import format4store from './utils/format4store';
 import Status from './entities/Status';
@@ -16,7 +16,7 @@ app.intent('Default Welcome Intent', conv => {
       'phone surface in the simulator.');
     return;
   }
-  conv.ask('Which of these looks good?')
+  conv.ask('調べたい GPU サーバーを選択してください')
   conv.ask(new Carousel({
     items: {
       "neptune": {
@@ -41,8 +41,47 @@ app.intent('actions.intent.OPTION', (conv, params, option) => {
       const snapshot = await docRef.get();
       const util = await snapshot.get('gpuUtil');
       const time = await snapshot.get('updatedAt');
-      const response = `${name} の ${time} 時点の GPU 使用率は ${util} % です`;
-      resolve(conv.close(response));
+      const response = `${time} に取得した使用状況です`;
+      resolve(conv.ask(new Table({
+        title: `${name}`,
+        subtitle: response,
+        image: new Image({
+          url: 'https://avatars0.githubusercontent.com/u/23533486',
+          alt: 'Actions on Google'
+        }),
+        columns: [
+          {
+            header: 'header 1',
+            align: 'CENTER',
+          },
+          {
+            header: 'header 2',
+            align: 'LEADING',
+          },
+          {
+            header: 'header 3',
+            align: 'TRAILING',
+          },
+        ],
+        rows: [
+          {
+            cells: ['GPU使用率', `${util} %`, 'row 1 item 3'],
+            dividerAfter: false,
+          },
+          {
+            cells: ['row 2 item 1', 'row 2 item 2', 'row 2 item 3'],
+            dividerAfter: true,
+          },
+          {
+            cells: ['row 2 item 1', 'row 2 item 2', 'row 2 item 3'],
+          },
+        ],
+        buttons: new Button({
+          title: 'Button Title',
+          url: 'https://github.com/actions-on-google'
+        }),
+      })));
+      // resolve(conv.close(response));
     } catch {
       const response = '調べられませんでした';
       resolve(conv.close(response));

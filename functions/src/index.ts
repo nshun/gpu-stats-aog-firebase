@@ -15,12 +15,13 @@ interface strStr {
 }
 const serverImages: strStr = {
   'neptune': 'https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg',
-  'uranus': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/220px-Uranus2.jpg',
-  'mercury': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Mercury_in_color_-_Prockter07-edit1.jpg/220px-Mercury_in_color_-_Prockter07-edit1.jpg',
   'orion': 'https://upload.wikimedia.org/wikipedia/commons/f/f5/OrionCC.jpg',
+  'pyxis': 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Tpyx_hst_big.jpg',
   'scorpius': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/ScorpiusCC.jpg/256px-ScorpiusCC.jpg',
   'ariel': 'https://upload.wikimedia.org/wikipedia/commons/5/59/Ariel_%28moon%29.jpg',
   'saturn': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg',
+  'uranus': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/220px-Uranus2.jpg',
+  'mercury': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Mercury_in_color_-_Prockter07-edit1.jpg/220px-Mercury_in_color_-_Prockter07-edit1.jpg',
 }
 
 const defaultCarousel = new Carousel({
@@ -34,22 +35,13 @@ const defaultCarousel = new Carousel({
         alt: 'neptune',
       }),
     },
-    "uranus": {
-      title: 'uranus',
-      synonyms: ['ウラヌス'],
+    "pyxis": {
+      title: 'pyxis',
+      synonyms: ['ピクシス'],
       description: 'JupyterLab Server',
       image: new Image({
-        url: serverImages.uranus,
-        alt: 'uranus',
-      }),
-    },
-    "mercury": {
-      title: 'mercury',
-      synonyms: ['マーキュリー'],
-      description: 'JupyterLab Server',
-      image: new Image({
-        url: serverImages.mercury,
-        alt: 'mercury',
+        url: serverImages.pyxis,
+        alt: 'pyxis',
       }),
     },
     "orion": {
@@ -86,6 +78,24 @@ const defaultCarousel = new Carousel({
       image: new Image({
         url: serverImages.saturn,
         alt: 'saturn',
+      }),
+    },
+    "uranus": {
+      title: 'uranus',
+      synonyms: ['ウラヌス'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.uranus,
+        alt: 'uranus',
+      }),
+    },
+    "mercury": {
+      title: 'mercury',
+      synonyms: ['マーキュリー'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.mercury,
+        alt: 'mercury',
       }),
     },
   }

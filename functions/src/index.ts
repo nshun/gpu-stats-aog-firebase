@@ -92,13 +92,10 @@ const defaultCarousel = new Carousel({
 })
 
 app.intent('Default Welcome Intent', conv => {
-  if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
-    conv.ask('Sorry, try this on a screen device or select the ' +
-      'phone surface in the simulator.');
-    return;
-  }
   conv.ask('調べたい GPU サーバーを選択してください');
-  conv.ask(defaultCarousel);
+  if (conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
+    conv.ask(defaultCarousel);
+  }
 });
 
 function createTable(data: Status): Table {

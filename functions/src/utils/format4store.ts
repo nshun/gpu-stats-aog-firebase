@@ -29,7 +29,7 @@ export default function formatData(reqBody: IReqBody): Status {
       gpuMemUsed: parseInt(parsedGPU[3], 10),
       gpuMemTotal: parseInt(parsedGPU[4], 10),
       gpuTemp: parseInt(parsedGPU[5], 10),
-      processes: `{${parsedProcess}})`,
+      processes: `{${parsedProcess}}`,
       updatedAt: moment().utcOffset("+09:00").format('YYYY年MM月DD日 HH:mm:ss'),
     };
   } catch (error) {

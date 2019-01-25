@@ -23,6 +23,74 @@ const serverImages: strStr = {
   'saturn': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg',
 }
 
+const defaultCarousel = new Carousel({
+  items: {
+    "neptune": {
+      title: 'neptune',
+      synonyms: ['ネプチューン'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.neptune,
+        alt: 'neptune',
+      }),
+    },
+    "uranus": {
+      title: 'uranus',
+      synonyms: ['ウラヌス'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.uranus,
+        alt: 'uranus',
+      }),
+    },
+    "mercury": {
+      title: 'mercury',
+      synonyms: ['マーキュリー'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.mercury,
+        alt: 'mercury',
+      }),
+    },
+    "orion": {
+      title: 'orion',
+      synonyms: ['オリオン'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.orion,
+        alt: 'orion',
+      }),
+    },
+    "scorpius": {
+      title: 'scorpius',
+      synonyms: ['スコーピウス'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.scorpius,
+        alt: 'scorpius',
+      }),
+    },
+    "ariel": {
+      title: 'ariel',
+      synonyms: ['アリエル'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.ariel,
+        alt: 'ariel',
+      }),
+    },
+    "saturn": {
+      title: 'saturn',
+      synonyms: ['サターン'],
+      description: 'JupyterLab Server',
+      image: new Image({
+        url: serverImages.saturn,
+        alt: 'saturn',
+      }),
+    },
+  }
+})
+
 app.intent('Default Welcome Intent', conv => {
   if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
     conv.ask('Sorry, try this on a screen device or select the ' +
@@ -30,73 +98,7 @@ app.intent('Default Welcome Intent', conv => {
     return;
   }
   conv.ask('調べたい GPU サーバーを選択してください');
-  conv.ask(new Carousel({
-    items: {
-      "neptune": {
-        title: 'neptune',
-        synonyms: ['ネプチューン'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.neptune,
-          alt: 'neptune',
-        }),
-      },
-      "uranus": {
-        title: 'uranus',
-        synonyms: ['ウラヌス'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.uranus,
-          alt: 'uranus',
-        }),
-      },
-      "mercury": {
-        title: 'mercury',
-        synonyms: ['マーキュリー'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.mercury,
-          alt: 'mercury',
-        }),
-      },
-      "orion": {
-        title: 'orion',
-        synonyms: ['オリオン'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.orion,
-          alt: 'orion',
-        }),
-      },
-      "scorpius": {
-        title: 'scorpius',
-        synonyms: ['スコーピウス'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.scorpius,
-          alt: 'scorpius',
-        }),
-      },
-      "ariel": {
-        title: 'ariel',
-        synonyms: ['アリエル'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.ariel,
-          alt: 'ariel',
-        }),
-      },
-      "saturn": {
-        title: 'saturn',
-        synonyms: ['サターン'],
-        description: 'JupyterLab Server',
-        image: new Image({
-          url: serverImages.saturn,
-          alt: 'saturn',
-        }),
-      },
-    }
-  }));
+  conv.ask(defaultCarousel);
 });
 
 function createTable(data: Status): Table {

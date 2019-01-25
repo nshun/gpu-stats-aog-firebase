@@ -32,5 +32,5 @@ firebase deploy --only functions
 ```
 
 # Reference
-- https://firebase.google.com
-- https://developers.google.com/actions/assistant/responses
+- https://firebase.google.com/docs/
+- https://developers.google.com/actions/dialogflow/

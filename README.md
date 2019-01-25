@@ -4,8 +4,8 @@
 1. Create AOG (Actions on Google) project at [actions console](https://console.actions.google.com/).
 2. Select `Add action` at **Actions** tab.
 3. Select `Custom intent` and push `BUILD`.
-4. (Dialogflow) Push ⚙️ icon and import `gpu_stats.zip` at `Expoer and Import` Tab.
-5. (AOG) Select `View in Firebase` at **Backend services**.
+4. (Dialogflow) Push ⚙️ icon and import `gpu_stats.zip` at `Expoer and Import` tab.
+5. (AOG) Select `View in Firebase` at **Backend services** tab.
 
 # Install
 ```

@@ -6,11 +6,15 @@
 3. Select `Custom intent` and push `BUILD`.
 4. (Dialogflow) Push ⚙️ icon and import `gpu_stats.zip` at `Expoer and Import` tab.
 5. (AOG) Select `View in Firebase` at **Backend services** tab.
+6. Install firebase cli tool and login.
 
-# Install
 ```
 npm i -g firebase-tools
 firebase login
+```
+
+# Install
+```
 firebase use ${Project id}
 cd ./functions/
 npm i

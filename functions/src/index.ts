@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { dialogflow, Carousel, Table, Image, Button } from 'actions-on-google';
+import { dialogflow, Response, Carousel, Table, Image, Button } from 'actions-on-google';
 import * as admin from 'firebase-admin';
 import format4store from './utils/format4store';
 import Status from './entities/Status';
@@ -99,42 +99,61 @@ app.intent('Default Welcome Intent', conv => {
   }));
 });
 
-app.intent('actions.intent.OPTION', (conv, params, option) => {
+function createTable(data: Status): Table {
+  return new Table({
+    title: `${data.name}`,
+    subtitle: `${data.gpuName} (${data.gpuTemp}℃) \n ${data.updatedAt}`,
+    image: new Image({
+      url: serverImages[data.name] || 'https://avatars0.githubusercontent.com/u/23533486',
+      alt: 'Actions on Google'
+    }),
+    columns: [
+      { align: 'CENTER', },
+      { header: 'current', align: 'TRAILING', },
+      { header: 'max', align: 'TRAILING', },
+    ],
+    rows: [
+      { cells: ['CPU', `${data.cpuUtil} %`, ''], dividerAfter: false, },
+      { cells: ['メインメモリ', `${data.memUtil} %`, `${data.memTotal} MB`], dividerAfter: true, },
+      { cells: ['GPU', `${data.gpuUtil} %`, ''], dividerAfter: false, },
+      { cells: ['GPUメモリ', `${Math.round(data.gpuMemUsed / data.gpuMemTotal * 1000) / 10} %`, `${data.gpuMemTotal} MB`], dividerAfter: true, },
+    ],
+    buttons: new Button({
+      title: 'Kibana',
+      url: 'http://kibana/'
+    }),
+  })
+}
+
+function createStatusResponse(name: string): Promise<Response[]> {
   return new Promise(async (resolve, reject) => {
-    const name = (option || '').toString();
+    const responses: Response[] = [];
     const docRef = db.collection('status').doc(name);
     const snapshot = await docRef.get();
     if (snapshot.exists) {
       const data = new Status(snapshot.data());
-      conv.ask(`${data.updatedAt} に取得した使用状況です`);
-      resolve(conv.ask(new Table({
-        title: `${name}`,
-        subtitle: `${data.gpuName} (${data.gpuTemp}℃) \n ${data.updatedAt}`,
-        image: new Image({
-          url: serverImages[name] || 'https://avatars0.githubusercontent.com/u/23533486',
-          alt: 'Actions on Google'
-        }),
-        columns: [
-          { align: 'CENTER', },
-          { header: 'current', align: 'TRAILING', },
-          { header: 'max', align: 'TRAILING', },
-        ],
-        rows: [
-          { cells: ['CPU', `${data.cpuUtil} %`, ''], dividerAfter: false, },
-          { cells: ['メインメモリ', `${data.memUtil} %`, `${data.memTotal} MB`], dividerAfter: true, },
-          { cells: ['GPU', `${data.gpuUtil} %`, ''], dividerAfter: false, },
-          { cells: ['GPUメモリ', `${Math.round(data.gpuMemUsed / data.gpuMemTotal * 1000) / 10} %`, `${data.gpuMemTotal} MB`], dividerAfter: true, },
-        ],
-        buttons: new Button({
-          title: 'Kibana',
-          url: 'http://kibana/'
-        }),
-      })));
+      responses.push(`${data.updatedAt} に取得した使用状況です`);
+      responses.push(createTable(data));
     } else {
       const response = '調べられませんでした';
-      resolve(conv.close(response));
+      responses.push(response);
     }
+    resolve(responses);
   });
+}
+
+app.intent('actions.intent.OPTION', async (conv, params, option) => {
+  try {
+    const name = `${option}` || '';
+    if (name && name !== '') {
+      const responses = await createStatusResponse(name);
+      conv.ask(...responses);
+    } else {
+      conv.followup('Welcome');
+    }
+  } catch (error) {
+    conv.followup('Welcome');
+  }
 });
 
 function storeFirebase(req: functions.Request, res: functions.Response) {

@@ -134,7 +134,7 @@ function createStatusResponse(name: string): Promise<Response[]> {
     const snapshot = await docRef.get();
     if (snapshot.exists) {
       const data = new Status(snapshot.data());
-      responses.push(`${data.updatedAt} に取得した使用状況です`);
+      responses.push(`${data.updatedAt} の GPU 使用率は ${data.gpuUtil} % です`);
       responses.push(createTable(data));
     } else {
       const response = '調べられませんでした';
@@ -146,7 +146,21 @@ function createStatusResponse(name: string): Promise<Response[]> {
 
 app.intent('actions.intent.OPTION', async (conv, params, option) => {
   try {
-    const name = `${option}` || '';
+    const name = (params && params.name || `${option}` || '').toString();
+    if (name && name !== '') {
+      const responses = await createStatusResponse(name);
+      conv.ask(...responses);
+    } else {
+      conv.followup('Welcome');
+    }
+  } catch (error) {
+    conv.followup('Welcome');
+  }
+});
+
+app.intent('Check GPU Status', async (conv, params) => {
+  try {
+    const name = (params && params.name || '').toString();
     if (name && name !== '') {
       const responses = await createStatusResponse(name);
       conv.ask(...responses);

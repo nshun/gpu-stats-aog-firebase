@@ -156,7 +156,7 @@ app.intent('actions.intent.OPTION', async (conv, params, option) => {
     const name = (params && params.name || `${option}` || '').toString();
     if (name && name !== '') {
       const responses = await createStatusResponse(name);
-      conv.ask(...responses);
+      conv.close(...responses);
     } else {
       conv.followup('Welcome');
     }
@@ -170,7 +170,7 @@ app.intent('Check GPU Status', async (conv, params) => {
     const name = (params && params.name || '').toString();
     if (name && name !== '') {
       const responses = await createStatusResponse(name);
-      conv.ask(...responses);
+      conv.close(...responses);
     } else {
       conv.followup('Welcome');
     }
